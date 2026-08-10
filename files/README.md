@@ -1,6 +1,6 @@
 # Attention-Augmented CNN for Cat vs. Dog Classification
 
-A small convolutional neural network for binary image classification (cats vs. dogs, sampled from CIFAR-10), enhanced with a **custom QKV self-attention layer** inserted between convolutional blocks.
+A small convolutional neural network for binary image classification (cats vs. dogs, sampled from CIFAR-10), enhanced with a **custom QKV self-attention mechanism layer** inserted between convolutional blocks.
 
 ## Overview
 
@@ -52,6 +52,7 @@ This will:
 This is an early, working version of the project. Planned improvements:
 
 - [ ] Train on the full cat/dog subset of CIFAR-10 (not just 1000 images) with a proper train/val/test split
+- [ ] optimise it to be able to use/read and classify self uploaded data
 - [ ] Replace `ImageDataGenerator` with `tf.data` + Keras preprocessing layers
 - [ ] Add `EarlyStopping`, `ModelCheckpoint`, `ReduceLROnPlateau` callbacks
 - [ ] Add precision/recall/F1/ROC-AUC metrics
@@ -61,8 +62,9 @@ This is an early, working version of the project. Planned improvements:
 
 ## Why this project?
 
-This was built to explore how self-attention mechanisms — popularized by Transformers — can be adapted to convolutional feature maps for small-scale image classification, and to understand their effect on both accuracy and interpretability.
+This was built to explore how self-attention mechanisms can be adapted to convolutional feature maps for small-scale image classification, and to understand their effect on both accuracy and interpretability.
 
-## License
+## Author
 
-MIT (or your preferred license — add a `LICENSE` file if you want this open-sourced formally).
+TAMAMRA Abderrahmane
+

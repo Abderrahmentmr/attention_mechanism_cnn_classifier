@@ -40,12 +40,7 @@ This will:
 
 ## Results
 
-*(Add your accuracy/loss curves and confusion matrix screenshots here once you have a run you're happy with — this is the first thing recruiters/reviewers will look at.)*
 
-| Metric | Value |
-|---|---|
-| Validation accuracy | TBD |
-| Validation loss | TBD |
 
 ## Status & Roadmap
 

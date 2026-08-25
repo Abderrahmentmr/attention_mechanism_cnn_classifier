@@ -115,7 +115,6 @@ Final epoch:
 
 The attention layer computes three projections of the feature map **Query**, **Key**, and **Value** ,then uses them to figure out how much each spatial location should "pay attention to" every other location. In plain terms: it lets the model learn *where to look* in the image, rather than processing every pixel region with equal importance.
 
-> Visualizing the actual attention weights as a heatmap over the image is a great next step to make this section more convincing — it isn't implemented yet, but the layer already computes the weights internally, so it just needs to be exposed and plotted.
 
 ---
 

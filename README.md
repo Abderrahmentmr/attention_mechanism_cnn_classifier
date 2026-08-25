@@ -1,69 +1,144 @@
-# Attention-Augmented CNN for Cat vs. Dog Classification
+# Cats vs Dogs Classifier / CNN with Self-Attention
 
-A small CNN for binary image classification (cats vs. dogs), enhanced with a **custom QKV self-attention layer** inserted between convolutional blocks — the same core mechanism behind Transformers, adapted here to convolutional feature maps.
+A convolutional neural network that classifies images as **cat** or **dog**, built in TensorFlow/Keras.It uses a CNN to extract features from the images and a custom self-attention mechanism to help the model focus on important parts of the image.
 
-## Building the Model with TensorFlow
+---
 
-**1. Load and preprocess the data.** Images are loaded from the Cats vs. Dogs dataset, resized, and normalized to `[0, 1]`.
+##  Dataset
 
-**2. Build the CNN.** Using TensorFlow's Functional API, the network stacks:
-- [`Conv2D`](https://www.geeksforgeeks.org/deep-learning/convolutional-layer/) blocks with [ReLU activation](https://www.geeksforgeeks.org/deep-learning/relu-activation-function-in-deep-learning/) and `BatchNormalization`
-- A custom **QKV self-attention layer** (see below) placed between conv blocks
-- `Dense` layers with `Dropout` for regularization
-- A final `Dense(1)` layer with [sigmoid activation](https://www.geeksforgeeks.org/deep-learning/sigmoid-activation-function/) for binary output
+- **Source:** [Kaggle — Microsoft Cats vs Dogs Dataset](https://www.kaggle.com/datasets/shaunthesheep/microsoft-catsvsdogs-dataset), based on Microsoft's original Asirra dataset.
+- **Classes:** `Cat`, `Dog` — labeled automatically from folder names.
+- **Size:** ~25,000 images total, roughly balanced between the two classes. A small number of files are corrupted and are automatically skipped during loading.
+- **Image size:** all images resized to **128 × 128** pixels.
+- **Split:** 80% training / 20% validation, using a fixed random seed so the split is reproducible.
+- **Preprocessing:** pixel values are rescaled to the 0–1 range inside the model. During training only, images are randomly flipped and slightly rotated to reduce overfitting.
 
-**3. Add self-attention.** Standard CNNs only look at local neighborhoods (whatever fits inside a filter's kernel), so they can struggle to relate distant parts of an image. The custom `QKVAttentionLayer` computes Query, Key, and Value projections from the feature map, then lets every spatial position attend to every other position — helping the network learn *which regions matter to each other* before making a prediction. Its output is added back to the original features (a residual connection), so attention refines the representation rather than replacing it.
+> Note: this version uses a train/validation split only. A held-out test set would make the final evaluation stronger — see [Future Improvements](#9-future-improvements).
 
-**4. Compile and train.** The model is compiled with the [Adam optimizer](https://www.geeksforgeeks.org/deep-learning/adam-optimizer/) and [binary crossentropy loss](https://www.geeksforgeeks.org/deep-learning/binary-cross-entropy-log-loss-for-binary-classification/), then trained with data augmentation (random flips, rotation, translation) and `EarlyStopping`/`ReduceLROnPlateau` callbacks.
+---
 
-**5. Install dependencies:**
-```bash
-pip install -r requirements.txt
+##  Data Loading
+
+```python
+train_ds = tf.keras.utils.image_dataset_from_directory(
+    image_folder,
+    validation_split=0.2,
+    subset="training",
+    seed=SEED,
+    image_size=IMAGE_SIZE,
+    batch_size=BATCH_SIZE,
+    label_mode="binary",
+    shuffle=True,
+)
 ```
 
-**6. Run it:**
-```bash
-python attention_cnn_classifier_colab.py
-```
-This will download the dataset, train the model, plot accuracy/loss curves, and generate a confusion matrix + sample predictions on the test set.
+This function scans the dataset folder, treats each subfolder (`Cat`, `Dog`) as a class label, and returns ready-to-use batches of `(image, label)` pairs. Shuffling **before** splitting is important here — it ensures both classes are properly mixed into both the training and validation sets, instead of one subset accidentally ending up with mostly one class.
 
-## Architecture at a Glance
+---
+
+##  Model Architecture
 
 ```
-Input (96×96×3)
-  → Conv2D(64) → BatchNorm → MaxPooling
-  → Conv2D(128) → BatchNorm
-  → QKV Self-Attention (residual add)
-  → MaxPooling → Flatten
-  → Dense(128) → BatchNorm → Dropout
-  → Dense(1, sigmoid)
+Input Image (128×128×3)
+        ↓
+Rescaling + Augmentation (flip, rotate)
+        ↓
+Conv2D (32) → BatchNorm → MaxPool
+        ↓
+Conv2D (64) → BatchNorm → MaxPool
+        ↓
+Conv2D (128) → BatchNorm → MaxPool
+        ↓
+   ┌─────────────────┐
+   │  Self-Attention  │
+   │      (QKV)       │
+   └─────────────────┘
+        ↓  (added back via skip connection)
+Global Average Pooling
+        ↓
+Dense (128) → BatchNorm → Dropout
+        ↓
+Dense (1, sigmoid) → Cat / Dog
 ```
+
+**Why this design:**
+- **Conv2D layers** extract visual features/edges, textures, shapes.
+- **Self-attention layer** lets the model weigh which regions of the feature map matter most (e.g. the animal's face) instead of treating the whole image equally.
+- **Skip connection** adds the attention output back onto the original features, so useful information from the CNN isn't lost.
+- **Dense + sigmoid** turns the final features into a single probability: closer to 0 means cat, closer to 1 means dog.
+
+---
+
+## Training
+
+| Setting | Value |
+|---|---|
+| Optimizer | Adam (learning rate 0.0005) |
+| Loss function | Binary cross-entropy |
+| Batch size | 16 |
+| Epochs | 10 |
+
+**Accuracy / loss over training:**
+
+<img width="1200" height="500" alt="Figure_1" src="https://github.com/user-attachments/assets/1e1f133e-34f8-44b1-bb52-f2f46b874812" />
+
+
+
+
+---
 
 ## Results
 
-<img width="1268" height="589" alt="image" src="https://github.com/user-attachments/assets/e7b32afc-f52b-4f74-8db9-1445453f28d7" />
+Final epoch:
 
-<img width="633" height="560" alt="image" src="https://github.com/user-attachments/assets/0e2f3da8-edf9-4041-8f76-4566bed3fc65" />
+| Metric | Result |
+|---|---|
+| Training accuracy | 81.95% |
+| Validation accuracy | 82.49% |
+| Validation loss | 0.387 |
+
+**Confusion matrix:**
+
+<img width="600" height="500" alt="Figure_CM" src="https://github.com/user-attachments/assets/6fb142cc-2f4a-44ee-b4fa-731ccff9e4f2" />
 
 
-## Status & Roadmap
 
-This is an early, working version of the project. Planned improvements:
+---
 
-- [ ] Train on the full cat/dog subset of CIFAR-10 (not just 1000 images) with a proper train/val/test split
-- [ ] optimise it to be able to use/read and classify self uploaded data
-- [ ] Replace `ImageDataGenerator` with `tf.data` + Keras preprocessing layers
-- [ ] Add `EarlyStopping`, `ModelCheckpoint`, `ReduceLROnPlateau` callbacks
-- [ ] Add precision/recall/F1/ROC-AUC metrics
-- [ ] Visualize the learned attention maps over input images (interpretability)
-- [ ] Compare against a baseline CNN without the attention block
-- [ ] Refactor into modules (`data.py`, `model.py`, `train.py`, `evaluate.py`)
-## Why This Project?
+##  Example Predictions
 
-Built to explore how self-attention (the mechanism behind Transformers) can be adapted to convolutional feature maps for small-scale image classification, and to see its effect on both accuracy and interpretability.
+<img width="1536" height="752" alt="Figure_Test RES" src="https://github.com/user-attachments/assets/53217702-5947-4826-98ba-f1e055f683f3" />
 
+---
+
+##  About the Attention Mechanism
+
+The attention layer computes three projections of the feature map **Query**, **Key**, and **Value** ,then uses them to figure out how much each spatial location should "pay attention to" every other location. In plain terms: it lets the model learn *where to look* in the image, rather than processing every pixel region with equal importance.
+
+> Visualizing the actual attention weights as a heatmap over the image is a great next step to make this section more convincing — it isn't implemented yet, but the layer already computes the weights internally, so it just needs to be exposed and plotted.
+
+---
+
+## How to Run It
+
+```bash
+git clone <your-repo-url>
+cd <your-repo>
+pip install tensorflow kagglehub scikit-learn matplotlib seaborn numpy
+python main.py
+```
+
+The dataset downloads automatically the first time via `kagglehub` (requires a free Kaggle account and API key — see [Kaggle's API docs](https://www.kaggle.com/docs/api)).
+
+---
+
+## Future Improvements
+
+- Add a proper train / validation / **test** split for a cleaner final evaluation.
+- Save the trained model (`model.save(...)`) and deploy it behind a simple web app so anyone can upload an image and get a live prediction.
+- Visualize the attention maps to show *where* the model is looking.
+
+
+---
 ## Author
-
-TAMAMRA Abderrahmane
-
-
+Tamamra Abderrahmane

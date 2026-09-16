@@ -109,14 +109,7 @@ The interface has a compact preview so that the uploaded image and result remain
 
 <img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/ae04fbd3-5657-4e9d-87a7-e1f7c6c8c32b" />
 
-When the images are ready, add them below:
 
-<!--
-<p align="center">
-  <img src="docs/images/streamlit-upload.png" width="45%" alt="Paws and Predict upload screen" />
-  <img src="docs/images/streamlit-prediction.png" width="45%" alt="Paws and Predict prediction result" />
-</p>
--->
 
 ## Run Locally
 
@@ -153,21 +146,6 @@ streamlit run files/streamlit_app.py
 
 Open the local URL shown by Streamlit, upload an image, and view the prediction.
 
-## Project Structure
-
-```text
-attention_mechanism_cnn_classifier/
-├── README.md                         # Project overview, results, and setup
-├── docs/
-│   └── images/                       # Streamlit screenshots for this README
-└── files/
-    ├── attention_cnn_classifier.py   # Data loading, model training, and evaluation
-    ├── streamlit_app.py               # Streamlit inference interface
-    ├── requirements.txt               # Python dependencies
-    └── .gitignore                     # Dataset, model, environment, and cache exclusions
-```
-
-The downloaded dataset and trained `.keras` model are intentionally excluded from version control. This keeps the repository light and avoids committing large generated artifacts; running the training script recreates the model locally.
 
 ## Limitations and Next Steps
 

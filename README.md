@@ -107,10 +107,7 @@ The interface has a compact preview so that the uploaded image and result remain
 
 ### Web app screenshots
 
-Add screenshots to the prepared `docs/images/` folder after taking them. The two most useful views for this README are:
-
-1. `streamlit-upload.png` — the app before a file is selected.
-2. `streamlit-prediction.png` — an uploaded image beside a prediction result.
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/ae04fbd3-5657-4e9d-87a7-e1f7c6c8c32b" />
 
 When the images are ready, add them below:
 

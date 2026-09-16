@@ -138,6 +138,16 @@ python files/attention_cnn_classifier.py
 
 The script downloads the Kaggle dataset, trains the network, saves `cats_dogs_model.keras` in the repository root, and displays the evaluation plots. Kaggle access requires a free account and API credentials; see the [Kaggle API documentation](https://www.kaggle.com/docs/api).
 
+### Try the included model in the web app
+
+The pretrained `cats_dogs_model.keras` file is included in the repository, so you can launch the app immediately:
+
+```bash
+streamlit run files/streamlit_app.py
+```
+
+Open the local URL shown by Streamlit, upload an image, and view the prediction.
+
 ### 3. Start the web app
 
 ```bash
